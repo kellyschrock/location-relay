@@ -1,2 +1,5 @@
 todo.txt
 node_modules/
+data/
+*.log
+

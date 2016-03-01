@@ -12,6 +12,11 @@ var path = require('path');
 
 var app = express();
 
+app.use(function(req, res, next) {
+    console.log(req.method + " " + req.url);
+    next();
+});
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -32,14 +37,16 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
+// Post a location for a user in a group. The post body specifies groupId, userId, and location.
+app.post('/follow/user', loc.postLocation);
+// Delete location data for the specified group/user
+app.del('/follow/user', loc.deleteUserLocation);
 // List groups
 app.get('/follow/groups', loc.listGroups);
 // List users and their locations in the specified group
 app.get('/follow/group/:groupId', loc.listUsers);
-// List locations for the specified user in the specified group
-app.get('/follow/user/:groupId/:userId', loc.listUserLocations);
-// Post a location for the specified user in the specified group
-app.post('/follow/user/:groupId/:userId', loc.postLocation);
+// Get the current location for the specified user in the specified group
+app.get('/follow/user/:groupId/:userId', loc.getUserLocation);
 
 http.createServer(app).listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));
