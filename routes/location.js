@@ -1,73 +1,36 @@
 
 var _data = {
-    locations: [
-        {
-            groupId: "derp",
-            userId: "joe",
+    group1: {
+        joe: {
             loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
         },
-        {
-            groupId: "derp",
-            userId: "bill",
+        bill: {
             loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
         }
-    ]
+    },
+    group2: {
+        bob: {
+            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+        },
+        sam: {
+            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+        }
+    }
 };
 
 //
 // List all the group names that are active.
 //
 exports.listGroups = function(req, res) {
-    var i;
-    var locs = _data.locations;
-
     var out = [];
 
-    var name;
+    var group;
 
-    for(i = 0; i < locs.length; ++i) {
-        name = locs[i].groupId;
-        if(out.indexOf(name) === -1) {
-            out.push(name);
-        }
+    for(var group in _data) {
+        out.push(group);
     }
 
     res.json(out);
-};
-
-//
-// Post a location. The post body specifies groupId, userId, and location. 
-// The posted data replaces any other data for the specified groupId and userId
-//
-exports.postLocation = function(req, res) {
-    var locs = _data.locations;
-    var groupId = req.body.groupId;
-    var userId = req.body.userId;
-    var loc = req.body.location || req.body.loc;
-    var i;
-    var found = false;
-
-    if(groupId && userId && loc) {
-        for(i = 0; i < locs.length; ++i) {
-            if(groupId === locs[i].groupId && userId === locs[i].userId) {
-                _data.locations[i].location = loc;
-                found = true;
-                break;
-            }
-        }
-
-        if(!found) {
-            _data.locations.push(req.body);
-        }
-
-        // Return what the user posted
-        res.json(req.body);
-    }
-    else {
-        res.json({
-            error: "groupId, userId, and location must be specified in the body"
-        });
-    }
 };
 
 //
@@ -78,43 +41,69 @@ exports.listUsers = function(req, res) {
 
     var groupId = req.param("groupId");
     var out = [];
-    var i;
-    var locs = _data.locations;
 
     if(groupId) {
-        for(i = 0; i < locs.length; ++i) {
-            if(locs[i].groupId === groupId) {
-                out.push(locs[i]);
-            }
-        }
+        var group = _data[groupId];
 
-        res.json(out);
+        if(group) {
+            res.json(group);
+        }
+        else {
+            res.json({
+                error: "group " + groupId + " not found"
+            });
+        }
     }
     else {
         res.json({
             error: "groupId is required"
         });
     }
-
-
-    // var out = [
-    //     {
-    //         name: "user1",
-    //         locations: [
-    //             {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 12345678},
-    //             {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 23456789}
-    //         ]
-    //     },
-    //     {
-    //         name: "user2",
-    //         locations: [
-    //             {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 12345678},
-    //             {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 23456789}
-    //         ]
-    //     }
-    // ]
-    // ;
 };
+
+//
+// Post a location. The post body specifies groupId, userId, and location. 
+// The posted data replaces any other data for the specified groupId and userId
+//
+exports.postLocation = function(req, res) {
+    var groupId = req.body.groupId;
+    var userId = req.body.userId;
+    var loc = req.body.location || req.body.loc;
+
+    if(groupId && userId && loc) {
+        var group = _data[groupId];
+        if(group) {
+            var user = group[userId];
+            if(user) {
+                // replace the location
+                _data[groupId][userId].loc = loc;
+                res.json({status: "set location ok"});
+            }
+            else {
+                // Add the user/location
+                _data[groupId][userId] = {};
+                _data[groupId][userId].loc = loc;
+
+                res.json({status: "added user/location to " + groupId});
+            }
+        }
+        else {
+            // Add the group/user/location
+            _data[groupId] = {};
+            _data[groupId][userId] = {
+                loc: loc
+            };
+
+            res.json({status: "added group/user/location"});
+        }
+    }
+    else {
+        res.json({
+            error: "groupId, userId, and location must be specified in the body"
+        });
+    }
+};
+
 
 //
 // Get the current location of the specified user in the specified group.
@@ -127,11 +116,24 @@ exports.getUserLocation = function(req, res) {
     var i;
 
     if(groupId && userId) {
-        for(i = 0; i < locs.length; ++i) {
-            if(locs[i].groupId === groupId && locs[i].userId === userId) {
-                res.json(locs[i]);
-                break;
+        var group = _data[groupId];
+
+        if(group) {
+            var user = group[userId];
+
+            if(user) {
+                res.json(user);
             }
+            else {
+                res.json({
+                    error: "User " + userId + " not found in " + groupId
+                });
+            }
+        }
+        else {
+            res.json({
+                error: "Group " + groupId + " not found"
+            });
         }
     }
     else {
@@ -139,42 +141,38 @@ exports.getUserLocation = function(req, res) {
             error: "groupId and userId are required"
         });
     }
-
-    // var out = {
-    //     name: "user1",
-    //     locations: [
-    //         {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 12345678},
-    //         {lat: 123.00, lng: 234.00, alt: 80, speed: 10, accuracy: 5, time: 23456789}
-    //     ]
-    // };
-
-    // res.json(out);
 };
 
 //
 // Clear the specified group/user's location
 //
 exports.deleteUserLocation = function(req, res) {
-    var groupid = req.groupId;
-    var userId = req.userId;
-    var locs = _data.locations;
-    var i;
+    var groupid = req.param("groupId");
+    var userId = req.param("userId");
 
-    if(groupId && userId) {
-        for(i = 0; i < locs.length; ++i) {
-            if(locs[i].groupId == groupId && locs[i].userId == userId) {
-                _data.locations.splice(i, 1);
-                break;
+    if(groupId) {
+        var group = _data[groupId];
+        if(group) {
+            if(userId) {
+                var user = group[userId];
+                if(user) {
+                    delete _data[groupId][userId];
+                    res.json({status: "Deleted user " + userId + " group " + groupId});
+                }
+                else {
+                    res.json({error: "User " + userId + " not found in " + groupId});
+                }
+            }
+            else {
+                delete _data[groupId];
+                res.json({status: "Deleted group " + groupId});
             }
         }
-
-        res.json({
-            status: "ok"
-        });
+        else {
+            res.json({error: "Group " + groupId + " not found"});
+        }
     }
     else {
-        res.json({
-            error: "groupId and userId are required"
-        });
+        res.json({error: "groupId and userId are required"});
     }
 };
