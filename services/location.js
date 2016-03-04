@@ -144,28 +144,22 @@ exports.getUserLocation = function(req, res) {
 };
 
 //
-// Clear the specified group/user's location
+// Clear the specified user's location
 //
 exports.deleteUserLocation = function(req, res) {
     var groupid = req.param("groupId");
     var userId = req.param("userId");
 
-    if(groupId) {
+    if(groupId && userId) {
         var group = _data[groupId];
         if(group) {
-            if(userId) {
-                var user = group[userId];
-                if(user) {
-                    delete _data[groupId][userId];
-                    res.json({status: "Deleted user " + userId + " group " + groupId});
-                }
-                else {
-                    res.json({error: "User " + userId + " not found in " + groupId});
-                }
+            var user = group[userId];
+            if(user) {
+                delete group[userId];
+                res.json({status: "delete user " + userID + " from " + groupId});
             }
             else {
-                delete _data[groupId];
-                res.json({status: "Deleted group " + groupId});
+                res.json({error: "User " + userId + " not found in " + groupId});
             }
         }
         else {
@@ -174,5 +168,27 @@ exports.deleteUserLocation = function(req, res) {
     }
     else {
         res.json({error: "groupId and userId are required"});
+    }
+};
+
+//
+// Clear the specified group
+//
+exports.deleteGroup = function(req, res) {
+    var groupid = req.param("groupId");
+    var userId = req.param("userId");
+
+    if(groupId) {
+        var group = _data[groupId];
+        if(group) {
+            delete _data[groupId];
+                res.json({status: "Deleted group " + groupId});
+        }
+        else {
+            res.json({error: "Group " + groupId + " not found"});
+        }
+    }
+    else {
+        res.json({error: "groupId is required"});
     }
 };

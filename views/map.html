@@ -1,0 +1,173 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <script type="text/javascript" src="/javascripts/jquery.js"></script>
+
+        <script>
+            var mMap;
+            var mInterval;
+            var mMarkers = {};
+            var mMarkerIcons = [
+                "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                "http://maps.google.com/mapfiles/ms/icons/purple-dot.png",
+                "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+                "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+            ];
+            var mMarkerIconIndex = 0;
+            var mPanToFollow = false;
+
+            function findMarkerFor(user) {
+                return mMarkers[user];
+            }
+
+            function track(groupId) {
+                $.ajax({
+                    url: "/follow/group/" + groupId,
+                    success: function(data) {
+                        console.log("data=" + JSON.stringify(data));
+
+                        var bounds = new google.maps.LatLngBounds();
+
+                        for(var user in data) {
+                            var marker = findMarkerFor(user);
+                            var loc = data[user].loc;
+                            var place = {lat: loc.lat, lng: loc.lng};
+                            bounds.extend(new google.maps.LatLng(place.lat, place.lng));
+
+                            if(marker) {
+                                // Move the marker
+                                marker.setPosition(place);
+                                
+                            }
+                            else {
+                                if(loc) {
+                                    var place = 
+                                    marker = new google.maps.Marker({
+                                        position: place,
+                                        map: mMap,
+                                        title: user,
+                                        icon: mMarkerIcons[mMarkerIconIndex]
+                                    });
+
+                                    mMarkers[user] = marker;
+
+                                    if(++mMarkerIconIndex >= mMarkerIcons.length-1) {
+                                        mMarkerIconIndex = 0;
+                                    }
+                                }
+                                else {
+                                    console.log("Warning: no location for " + user);
+                                }
+                            }
+                        }
+
+                        if(mPanToFollow) {
+                            mMap.fitBounds(bounds);
+                        }
+                    }
+                });
+            }
+
+            function startTracking(groupId) {
+                if(mInterval) {
+                    clearInterval(mInterval);
+                }
+
+                for(var x in mMarkers) {
+                    mMarkers[x].setMap(null);
+                }
+
+                mMarkers = {};
+
+                $("#btn_start_stop")
+                    .attr("value", "Stop")
+                    .attr("running", true)
+                    ;
+
+
+                track(groupId);
+                mInterval = setInterval(function() {
+                    track(groupId);
+                }, 1000);
+            }
+
+            function stopTracking() {
+                if(mInterval) {
+                    clearInterval(mInterval);
+                }
+
+                $("#btn_start_stop").attr("value", "Start");
+            }
+
+            function loadGroups() {
+                $.ajax({
+                    url: "/follow/groups",
+                    success: function(data) {
+                        var groupList = $("#select_groups");
+
+                        for(var i = 0; i < data.length; ++i) {
+                            var item = data[i];
+                            groupList.append($("<option />").val(item).text(item));
+                        }
+
+                        groupList.change(function() {
+                            var groupId = groupList.val();
+                            console.log(groupId);
+                            startTracking(groupId);
+                        });
+
+                    }
+                })
+            }
+
+            function initMap() {
+                mMap = new google.maps.Map(document.getElementById("map"), {
+                    center: {lat: 38.630169, lng: -94.336650},
+                    mapTypeId: google.maps.MapTypeId.SATELLITE,
+                    zoom: 15
+                });
+            }
+
+            $(document).ready(function() {
+                loadGroups();
+
+                $("#btn_start_stop").click(function() {
+                    if($(this).attr("running")) {
+                        console.log("Stop tracking");
+                        stopTracking();
+                        $(this).attr("running", false);
+                    }
+                });
+
+                $("#chk_pan_map").click(function() {
+                    mPanToFollow = $(this).is(":checked");
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <h2>Map</h2>
+        Pick the group you're interested in following, and the locations of people in that group will show up. Note that the users'
+        locations aren't stored, and the marker showing their location is only valid at the time they posted it. If a marker isn't moving,
+        it's most likely because they stopped sending their location.
+
+        <br/>
+        <br/>
+        <br/>
+
+        <div id="topbar">
+            Groups: 
+            <select id="select_groups"></select>
+
+            <input id="btn_start_stop" type="button"value="Start" />
+            <input id="chk_pan_map" type="checkbox" value="Bike">Pan to follow
+        </div>
+
+        <div id="map">
+
+        </div>
+        <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+
+    </body>
+</html>

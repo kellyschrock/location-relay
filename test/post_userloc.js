@@ -35,13 +35,17 @@ function postLocation(request) {
         });
 
         res.on('end', function() {
-            console.log("done");
+            // console.log("done");
+        });
+
+        res.on('error', function(err) {
+            console.log("ERROR: " + err);
         })
     };
 
     var req = http.request(post_options, callback);
 
-    console.log("post " + request);
+    // console.log("post " + request);
     req.write(request);
     req.end();
 }
