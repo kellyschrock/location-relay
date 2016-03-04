@@ -14,11 +14,11 @@ function doReadFile(filename, callback) {
     });
 }
 
-function postLocation(request) {
+function postLocation(request, hostname, hostport) {
     var post_options = {
-        host: 'localhost',
+        host: hostname || 'localhost',
+        port: hostport || 3000,
         path: '/follow/user',
-        port: 3000,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ function toRequestBody(line, group, user) {
     return JSON.stringify(body);
 }
 
-function processLines(lines, groupId, userId, eternal) {
+function processLines(lines, groupId, userId, host, port) {
     var requests = [];
     var i;
 
@@ -84,24 +84,48 @@ function processLines(lines, groupId, userId, eternal) {
     var time = 0;
     for(i = 0; i < requests.length; ++i) {
         setTimeout(function(req) {
-            postLocation(req);
+            postLocation(req, host, port);
         }, time, requests[i]);
 
-        time += 3000;
+        time += 2000;
     }
 }
 
 
 function main(argv) {
-    var filename = argv[0];
-    var groupId = argv[1];
-    var userId = argv[2];
-    var eternal = argv.length > 3;
+    var filename = "";
+    var groupId = "";
+    var userId = "";
+    var host = "";
+    var port = "";
+
+    for(var i = 0; i < argv.length; ++i) {
+        var arg = argv[i];
+
+        if(arg.indexOf("--input") >= 0) filename = arg.substring("--input=".length);
+        if(arg.indexOf("--group") >= 0) groupId = arg.substring("--group=".length);
+        if(arg.indexOf("--user") >= 0) userId = arg.substring("--user=".length);
+        if(arg.indexOf("--host") >= 0) host = arg.substring("--host=".length);
+        if(arg.indexOf("--port") >= 0) port = parseInt(arg.substring("--port=".length));
+    }
+
+    var required = [filename, groupId, userId];
+    for(var i = 0; i < required.length; ++i) {
+        console.log("arg=" + required[i]);
+        if(required[i] === "") {
+            showHelp();
+            return;
+        }
+    }
 
     doReadFile(filename, function(data) {
         var lines = data.split("\n");
-        processLines(lines, groupId, userId, eternal);
+        processLines(lines, groupId, userId, host, port);
     });
+}
+
+function showHelp() {
+    console.log("Usage: " + process.argv[1] + " --input=[filename] --group=groupId --user=userId [--host=hostname] [--port=port]");
 }
 
 
@@ -109,28 +133,6 @@ if(process.argv.length >= 5) {
     main(process.argv.splice(2));
 }
 else {
-    console.log("Usage: " + process.argv[1] + " [filename] groupId userId");
+    showHelp();
 }
 
-
-function get_test() {
-    var options = {
-      host: 'www.google.com',
-      path: '/',
-      port: 80
-    };
-
-    callback = function(response) {
-      var str = ''
-      response.on('data', function (chunk) {
-        str += chunk;
-      });
-
-      response.on('end', function () {
-        console.log(str);
-      });
-    }
-
-    var req = http.request(options, callback);
-    req.end();
-}

@@ -9,6 +9,19 @@ fi
 groupId=$1
 userId=$2
 
-wget -q -O- http://localhost:3000/follow/user/$groupId/$userId
+hostname=$LR_HOST
+port=$LR_PORT
+
+if [ -z $hostname ]; 
+then
+    hostname=localhost
+fi
+
+if [ -z $port ]; 
+then
+    port=3000
+fi
+
+wget -q -O- http://$hostname:$port/follow/user/$groupId/$userId
 
 

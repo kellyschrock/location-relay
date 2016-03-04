@@ -2,5 +2,18 @@
 
 groupId=$1
 
-curl -X DELETE http://localhost:3000/follow/group/$groupId
+hostname=$LR_HOST
+port=$LR_PORT
+
+if [ -z $hostname ]; 
+then
+    hostname=localhost
+fi
+
+if [ -z $port ]; 
+then
+    port=3000
+fi
+
+curl -X DELETE http://$hostname:$port/follow/group/$groupId
 
