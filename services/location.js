@@ -1,18 +1,7 @@
 
 var _data = {
-    group1: {
-        joe: {
-            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
-        },
-        bill: {
-            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
-        }
-    },
-    group2: {
-        bob: {
-            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
-        },
-        sam: {
+    test_group: {
+        test_user: {
             loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
         }
     }
