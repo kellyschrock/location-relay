@@ -136,7 +136,7 @@ exports.getUserLocation = function(req, res) {
 // Clear the specified user's location
 //
 exports.deleteUserLocation = function(req, res) {
-    var groupid = req.param("groupId");
+    var groupId = req.param("groupId");
     var userId = req.param("userId");
 
     if(groupId && userId) {
@@ -145,7 +145,7 @@ exports.deleteUserLocation = function(req, res) {
             var user = group[userId];
             if(user) {
                 delete group[userId];
-                res.json({status: "delete user " + userID + " from " + groupId});
+                res.json({status: "delete user " + userId + " from " + groupId});
             }
             else {
                 res.json({error: "User " + userId + " not found in " + groupId});
@@ -164,8 +164,7 @@ exports.deleteUserLocation = function(req, res) {
 // Clear the specified group
 //
 exports.deleteGroup = function(req, res) {
-    var groupid = req.param("groupId");
-    var userId = req.param("userId");
+    var groupId = req.param("groupId");
 
     if(groupId) {
         var group = _data[groupId];

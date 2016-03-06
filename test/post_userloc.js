@@ -59,6 +59,7 @@ function toRequestBody(line, group, user) {
         altitude: 30,
         speed: 5,
         accuracy: 5,
+        heading: 15,
         time: new Date().getTime()
     };
 

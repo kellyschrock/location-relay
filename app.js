@@ -41,7 +41,7 @@ app.get('/map', function(req, res) {res.sendfile('views/map.html'); });
 // Post a location for a user in a group. The post body specifies groupId, userId, and location.
 app.post('/follow/user', locService.postLocation);
 // Delete location data for the specified user
-app.del('/follow/user/:userId', locService.deleteUserLocation);
+app.del('/follow/user/:groupId/:userId', locService.deleteUserLocation);
 // Delete the specified group
 app.del('/follow/group/:groupId', locService.deleteGroup);
 // List groups
