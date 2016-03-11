@@ -69,7 +69,7 @@ function toRequestBody(line, group, user) {
         location: loc
     };
 
-    return JSON.stringify(body);
+    return body;
 }
 
 function processLines(lines, groupId, userId, host, port) {
@@ -85,10 +85,12 @@ function processLines(lines, groupId, userId, host, port) {
     var time = 0;
     for(i = 0; i < requests.length; ++i) {
         setTimeout(function(req) {
-            postLocation(req, host, port);
+            req.location.time = new Date().getTime();
+            console.log(JSON.stringify(req));
+            postLocation(JSON.stringify(req), host, port);
         }, time, requests[i]);
 
-        time += 2000;
+        time += 1000;
     }
 }
 
