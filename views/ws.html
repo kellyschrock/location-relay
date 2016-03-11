@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <script type="text/javascript" src="/javascripts/jquery.js"></script>
+
+        <script>
+            function log(str) {
+                console.log(str);
+                $("#output").append(str + "<br/>");
+            }
+
+            $(document).ready(function() {
+                if("WebSocket" in window) {
+                    var ws = new WebSocket("ws://localhost:3000/");
+
+                    ws.onopen = function() {};
+
+                    ws.onmessage = function(event) {
+                        var message = event.data;
+                        log("message=" + message);
+                    };
+
+                    ws.onclose = function() {
+                        log("connection closed");
+                    };
+
+                    $("#btnSendMessage").click(function(e) {
+                        e.preventDefault();
+
+                        ws.send("hey there, from the browser");
+                    });
+
+                    $("#btnSubscribeUser").click(function(e) {
+                        e.preventDefault();
+
+                        var jo = {type: "subscribe", groupId: "myGroup", userId: "stan"};
+                        ws.send(JSON.stringify(jo));
+                    });
+
+                    $("#btnUnsubscribeUser").click(function(e) {
+                        e.preventDefault();
+
+                        var jo = {type: "unsubscribe", groupId: "myGroup", userId: "stan"};
+                        ws.send(JSON.stringify(jo));
+                    });
+
+                    $("#btnSubscribeGroup").click(function(e) {
+                        e.preventDefault();
+
+                        var jo = {type: "subscribe", groupId: "myGroup"};
+                        ws.send(JSON.stringify(jo));
+                    });
+
+                    $("#btnUnsubscribeGroup").click(function(e) {
+                        e.preventDefault();
+
+                        var jo = {type: "unsubscribe", groupId: "myGroup"};
+                        ws.send(JSON.stringify(jo));
+                    });
+
+                    $("#btnClose").click(function(e) {
+                        e.preventDefault();
+
+                        ws.close();
+                    });
+                }
+                else {
+                    alert("Websockets aren't supported by your browser.");
+                }
+
+            });
+        </script>
+    </head>
+    <body>
+        <h2>WebSockets test</h2>
+        This is a test.
+
+        <input id="btnSendMessage" type="button" value="Send a message"></input>
+        <input id="btnSubscribeUser" type="button" value="Subscribe to myGroup/stan"></input>
+        <input id="btnUnsubscribeUser" type="button" value="Unsubscribe from myGroup/stan"></input>
+        <input id="btnSubscribeGroup" type="button" value="Subscribe to myGroup"></input>
+        <input id="btnUnsubscribeGroup" type="button" value="Unsubscribe from myGroup"></input>
+
+        <input id="btnClose" type="button" value="Close"></input>
+        <br/><br/>
+        <div id="output">
+        </div>
+    </body>
+</html>

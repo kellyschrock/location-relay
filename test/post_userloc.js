@@ -72,9 +72,10 @@ function toRequestBody(line, group, user) {
     return body;
 }
 
-function processLines(lines, groupId, userId, host, port) {
+function processLines(lines, groupId, userId, host, port, interval) {
     var requests = [];
     var i;
+    interval = interval || 1000;
 
     for(i = 0; i < lines.length; ++i) {
         if("" !== lines[i]) {
@@ -90,7 +91,7 @@ function processLines(lines, groupId, userId, host, port) {
             postLocation(JSON.stringify(req), host, port);
         }, time, requests[i]);
 
-        time += 1000;
+        time += interval;
     }
 }
 
@@ -101,6 +102,7 @@ function main(argv) {
     var userId = "";
     var host = "";
     var port = "";
+    var interval = 1000;
 
     for(var i = 0; i < argv.length; ++i) {
         var arg = argv[i];
@@ -110,6 +112,7 @@ function main(argv) {
         if(arg.indexOf("--user") >= 0) userId = arg.substring("--user=".length);
         if(arg.indexOf("--host") >= 0) host = arg.substring("--host=".length);
         if(arg.indexOf("--port") >= 0) port = parseInt(arg.substring("--port=".length));
+        if(arg.indexOf("--interval") >= 0) interval = parseInt(arg.substring("--interval=".length));
     }
 
     var required = [filename, groupId, userId];
@@ -123,7 +126,7 @@ function main(argv) {
 
     doReadFile(filename, function(data) {
         var lines = data.split("\n");
-        processLines(lines, groupId, userId, host, port);
+        processLines(lines, groupId, userId, host, port, interval);
     });
 }
 

@@ -7,6 +7,10 @@ var _data = {
     }
 };
 
+var _locationPostedCallback = null;
+var _userDeletedCallback = null;
+
+
 //
 // List all the group names that are active.
 //
@@ -51,6 +55,13 @@ exports.listUsers = function(req, res) {
 };
 
 //
+// Set a location-posted callback.
+//
+exports.setLocationPostedCallback = function(cb) {
+    _locationPostedCallback = cb;
+}
+
+//
 // Post a location. The post body specifies groupId, userId, and location. 
 // The posted data replaces any other data for the specified groupId and userId
 //
@@ -66,12 +77,21 @@ exports.postLocation = function(req, res) {
             if(user) {
                 // replace the location
                 _data[groupId][userId].loc = loc;
+
+                if(_locationPostedCallback != null) {
+                    _locationPostedCallback(groupId, userId, loc);
+                }
+
                 res.json({status: "set location ok"});
             }
             else {
                 // Add the user/location
                 _data[groupId][userId] = {};
                 _data[groupId][userId].loc = loc;
+
+                if(_locationPostedCallback != null) {
+                    _locationPostedCallback(groupId, userId, loc);
+                }
 
                 res.json({status: "added user/location to " + groupId});
             }
@@ -82,6 +102,10 @@ exports.postLocation = function(req, res) {
             _data[groupId][userId] = {
                 loc: loc
             };
+
+            if(_locationPostedCallback != null) {
+                _locationPostedCallback(groupId, userId, loc);
+            }
 
             res.json({status: "added group/user/location"});
         }
@@ -133,6 +157,13 @@ exports.getUserLocation = function(req, res) {
 };
 
 //
+// Set a location-posted callback.
+//
+exports.setUserDeletedCallback = function(cb) {
+    _userDeletedCallback = cb;
+}
+
+//
 // Clear the specified user's location
 //
 exports.deleteUserLocation = function(req, res) {
@@ -145,6 +176,11 @@ exports.deleteUserLocation = function(req, res) {
             var user = group[userId];
             if(user) {
                 delete group[userId];
+
+                if(_userDeletedCallback != null) {
+                    _userDeletedCallback(groupId, userId);
+                }
+
                 res.json({status: "delete user " + userId + " from " + groupId});
             }
             else {
