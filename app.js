@@ -59,7 +59,7 @@ app.get('/client/myip', function(req, res) {
         ip = ip.substring("::ffff:".length);
     }
     
-    res.json({ip: ip});
+    res.send(ip);
 });
 
 var server = http.createServer(app);
