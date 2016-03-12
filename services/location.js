@@ -1,10 +1,10 @@
 
 var _data = {
-    test_group: {
-        test_user: {
-            loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
-        }
-    }
+    // test_group: {
+    //     test_user: {
+    //         loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+    //     }
+    // }
 };
 
 var _locationPostedCallback = null;
