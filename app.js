@@ -52,6 +52,15 @@ app.get('/follow/groups', locService.listGroups);
 app.get('/follow/group/:groupId', locService.listUsers);
 // Get the current location for the specified user in the specified group
 app.get('/follow/user/:groupId/:userId', locService.getUserLocation);
+// Return the caller's IP address
+app.get('/client/myip', function(req, res) {
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    if(ip.indexOf("::ffff:") >= 0) {
+        ip = ip.substring("::ffff:".length);
+    }
+    
+    res.json({ip: ip});
+});
 
 var server = http.createServer(app);
 
