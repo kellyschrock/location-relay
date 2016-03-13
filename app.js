@@ -83,8 +83,12 @@ locService.setLocationPostedCallback(function(groupId, userId, location) {
 
     var str = JSON.stringify(out);
 
-    wss.publishToGroupAndTarget(groupId, userId, str);
     wss.publishToGroup(groupId, str);
+
+    out.type = "user_location";
+    str = JSON.stringify(out);
+
+    wss.publishToGroupAndTarget(groupId, userId, str);
 });
 
 locService.setUserDeletedCallback(function(groupId, userId) {
