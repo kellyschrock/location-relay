@@ -199,6 +199,11 @@ wss.on('connection', function(client) {
 
                         break;
                     }
+
+                    case "ping": {
+                        send(client, "ok");
+                        break;
+                    }
                 }
             }
         }
