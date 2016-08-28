@@ -113,6 +113,7 @@
 
                         groupList.change(function() {
                             var groupId = groupList.val();
+                            alert("groupId=" + groupId);
                             console.log(groupId);
                             startTracking(groupId);
                         });
@@ -137,6 +138,10 @@
                         console.log("Stop tracking");
                         stopTracking();
                         $(this).attr("running", false);
+                    } else {
+                        var groupId = $("#select_groups option:selected").val();
+                        alert("start: groupId=" + groupId);
+                        startTracking(groupId);
                     }
                 });
 
