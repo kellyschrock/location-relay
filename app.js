@@ -35,6 +35,7 @@ if ('development' == app.get('env')) {
 
 app.get('/', function(req, res) {res.sendfile('views/index.html'); });
 app.get('/map', function(req, res) {res.sendfile('views/map.html'); });
+app.get('/target', function(req, res) {res.sendfile('views/target.html'); });
 app.get('/ws', function(req, res) {res.sendfile('views/ws.html'); });
 
 // app.get('/', routes.index);
