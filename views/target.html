@@ -1,0 +1,237 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open%20Sans">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- <script type="text/javascript" src="/javascripts/jquery.js"></script> -->
+
+        <style>
+        body {
+            font-family: 'Open Sans', serif;
+            font-size: 16px;
+            padding: 0px;
+            color: #dfdfdf;
+            background-color: #252525;
+        }
+
+        .action_bar {
+            color: #efefef;
+            background-color: #43a800;
+            padding: 12px;
+        }
+
+        .content {
+            padding-top: 0px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        span.prompt {
+            float: left;
+            font-weight: bold;
+            min-width: 150px;
+        }
+
+        .field_name {
+            display: inline;
+            float: left;
+            font-weight: bold;
+        }
+
+        .val {
+            margin-left: 12px
+        }
+
+        div.fields {
+
+        }
+
+        div.status {
+            margin-top: 12px;
+            /*border: 1px solid #676767;*/
+            padding: 8px;
+        }
+        </style>
+
+        <script>
+        function geoDistance(lat1, lon1, lat2, lon2, unit) {
+            var radlat1 = Math.PI * lat1/180
+            var radlat2 = Math.PI * lat2/180
+            var theta = lon1-lon2
+            var radtheta = Math.PI * theta/180
+            var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+            dist = Math.acos(dist)
+            dist = dist * 180/Math.PI
+            dist = dist * 60 * 1.1515
+            if (unit=="K") { dist = dist * 1.609344 }
+            if (unit=="N") { dist = dist * 0.8684 }
+            return dist
+        }
+
+        function statusMsg(msg) {
+            $("#status").html(msg);
+        }
+
+        function checkForGeoLocation() {
+            var result = true;
+            if(!navigator.geolocation) {
+                statusMsg("Your browser doesn't support geolocation.");
+                $("#btn_follow").prop("disabled", true);
+                result = false;
+            }
+
+            return result;
+        }
+
+        var mIntervalId;
+        var mFollowing = false;
+        var mCurrentLocation;
+        var mLastLocation;
+        var mGroupId;
+        var mUserId;
+
+        function pingLocation() {
+            function success(position) {
+                mCurrentLocation = position.coords;
+
+                statusMsg(new Date() + ": " + position.coords.latitude + "," + position.coords.longitude);
+                sendLocation(mCurrentLocation);
+            }
+
+            function error(errMsg) {
+                statusMsg("Error getting location: " + errMsg);
+                stopFollowing();
+            }
+
+            navigator.geolocation.getCurrentPosition(success, error);
+        }
+
+        function sendLocation(coord) {
+            var body = {
+                groupId: mGroupId,
+                userId: mUserId,
+                location: {
+                    lat: coord.latitude,
+                    lng: coord.longitude
+                }
+            };
+
+            $.ajax("/follow/user", {
+                    data: JSON.stringify(body),
+                    type: "POST",
+                    contentType: "application/json",
+                    success: function(resp) {
+                        console.log("sendLocation() success: resp=" + JSON.stringify(resp));
+                    }
+                }
+            );
+
+        }
+
+        function startFollowing() {
+            mGroupId = $("#txt_groupid").val();
+            mUserId = $("#txt_userid").val();
+
+            localStorage.setItem("follow.groupId", mGroupId);
+            localStorage.setItem("follow.userId", mUserId);
+
+            statusMsg("Waiting for location");
+            mIntervalId = setInterval(pingLocation, 3000);
+            mFollowing = true;
+            $("#btn_follow").val("Stop Following");
+        }
+
+        function stopFollowing() {
+            statusMsg("Not following");
+            clearInterval(mIntervalId);
+
+            $.ajax("/follow/user/" + mGroupId + "/" + mUserId, {
+                    type: "DELETE",
+                    contentType: "application/json",
+                    success: function(resp) {
+                        console.log("stopFollowing() success: resp=" + JSON.stringify(resp));
+                        mFollowing = false;
+                        $("#btn_follow").val("Follow Me");
+                    }
+                }
+            );
+        }
+
+        $(document).ready(function() {
+            if(checkForGeoLocation()) {
+                $("#txt_groupid").val(localStorage.getItem("follow.groupId"));
+                $("#txt_userid").val(localStorage.getItem("follow.userId"));
+
+                function setFollowButtonState() {
+                    var disabled = true;
+
+                    if($("#txt_groupid").val() !== "" && $("#txt_userid").val() !== "") {
+                        disabled = false;
+                    }
+
+                    $("#btn_follow").prop("disabled", disabled);
+                }
+
+                $(".field").on("change paste keyup", function() {
+                    setFollowButtonState();
+                });
+
+                setTimeout(function() {
+                    setFollowButtonState();
+                }, 2000)
+
+                $("#btn_follow").click(function(evt) {
+                    if(mFollowing) {
+                        stopFollowing();
+                    } else {
+                        startFollowing();
+                    }
+                });
+
+                $("#btn_follow").prop("disabled", true);
+            }
+        });
+        </script>
+    </head>
+    <body>
+        <h2 class="action_bar">Solex Target</h2>
+        <div class="container-fluid">
+            <p>
+            Specify a group name (the same as other people in your target group), and a user name which is unique 
+            within the group. Then press <b>Follow Me</b>.
+            </p>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="text">Target Group:</label>
+                    <input type="text" class="form-control" id="txt_groupid">
+                </div>
+                <div class="form-group">
+                    <label for="text">Target User:</label>
+                    <input type="text" class="form-control field" id="txt_userid">
+                </div>
+                <button type="button" class="btn btn-default field" id="btn_follow">Follow Me</button>
+            </form>
+
+<!--             <div class="fields">
+                <span class="prompt">Target Group:</span>
+                <input class="field" type="text" id="txt_groupid" maxlength="80"></input>
+                <br/>
+                <span class="prompt">Target User:</span>
+                <input class="field" type="text" id="txt_userid" maxlength="80"></input>
+                <br/>
+                <br/>
+                <button type="button" class="btn btn-success" id="btn_follow">Follow Me</button>
+            </div>
+ -->
+            <div class="status">
+                <div class="field_name">Status:</div>
+                <div style="float:left" class="val" id="status">--</div>
+            </div>
+        </div>
+    </body>
+</html>
