@@ -56,6 +56,17 @@
             /*border: 1px solid #676767;*/
             padding: 8px;
         }
+
+        div#follow_options {
+            margin-top: 10px;
+        }
+
+        div.youre_it {
+            color: #65c900;
+            font-size: 24px;
+            text-align: center;
+        }
+
         </style>
 
         <script>
@@ -94,6 +105,7 @@
         var mLastLocation;
         var mGroupId;
         var mUserId;
+        var mUserIsIt = false;
 
         function pingLocation() {
             function success(position) {
@@ -117,26 +129,61 @@
             navigator.geolocation.getCurrentPosition(success, error, options);
         }
 
+        function enableOptionsGroup(enabled) {
+            var disabled = !enabled;
+            
+            $("input[name='followTypes']").prop("disabled", disabled);
+            $("input[name='cruise']").prop("disabled", disabled);
+            $("input#chk_look_at_me").prop("disabled", disabled);
+
+            if(enabled) {
+                $("#youre_it").show(500);
+            } else {
+                $("#youre_it").hide(500);
+            }
+        }
+
+        function getTargetOptions() {
+            if(mUserIsIt) {
+                var options = {};
+
+                options.look_at_me = $("#chk_look_at_me").prop("checked");
+                options.follow_type = $("input[name='followTypes']:checked").prop("tag");
+                options.cruise = $("input[name='cruise']:checked").prop("tag");
+            }
+
+            return null;
+        }
+
         function sendLocation(coord) {
+            // TODO: Add options here if this user is "it".
             var body = {
                 groupId: mGroupId,
                 userId: mUserId,
                 location: {
                     lat: coord.latitude,
-                    lng: coord.longitude
+                    lng: coord.longitude,
+                    time: new Date().getTime()
                 }
             };
+
+            var options = getTargetOptions();
+            if(options != null) {
+                body.options = options;
+            }
 
             $.ajax("/follow/user", {
                     data: JSON.stringify(body),
                     type: "POST",
                     contentType: "application/json",
                     success: function(resp) {
+                        var data = $.parseJSON(resp);
+                        mUserIsIt = data.it;
+                        enableOptionsGroup(mUserIsIt);
                         console.log("sendLocation() success: resp=" + JSON.stringify(resp));
                     }
                 }
             );
-
         }
 
         function startFollowing() {
@@ -175,6 +222,8 @@
             if(checkForGeoLocation()) {
                 $("#txt_groupid").val(localStorage.getItem("follow.groupId"));
                 $("#txt_userid").val(localStorage.getItem("follow.userId"));
+
+                enableOptionsGroup(false);
 
                 function setFollowButtonState() {
                     var disabled = true;
@@ -223,23 +272,48 @@
                     <label for="text">Target User:</label>
                     <input type="text" class="form-control field" id="txt_userid">
                 </div>
+
                 <button type="button" class="btn btn-default field" id="btn_follow">Follow Me</button>
+
+                <div class="form-group" id="follow_options">
+                    <label>Options:</label><br/>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="chk_look_at_me">Look at Me
+                        </label>
+                    </div>
+
+                    <label>Follow Type:</label>&nbsp;
+                    <div class="radio-inline">
+                        <input type="radio" name="followTypes" id="follow_orbit" tag="orbit">Orbit
+                    </div>
+                    <div class="radio-inline">
+                        <input type="radio" name="followTypes" id="follow_leash" tag="leash">Leash
+                    </div>
+                    <div class="radio-inline">
+                        <input type="radio" name="followTypes" id="follow_freelook" tag="free_look">Free Look
+                    </div>
+
+                    <br/><br/>
+
+                    <label>Cruise:</label>&nbsp;
+                    <div class="radio-inline">
+                        <input type="radio" name="cruise" id="reverse" tag="reverse">Reverse
+                    </div>
+                    <div class="radio-inline">
+                        <input type="radio" name="cruise" id="pause" tag="pause">Pause
+                    </div>
+                    <div class="radio-inline">
+                        <input type="radio" name="cruise" id="forward" tag="forward">Forward
+                    </div>
+                </div>
             </form>
 
-<!--             <div class="fields">
-                <span class="prompt">Target Group:</span>
-                <input class="field" type="text" id="txt_groupid" maxlength="80"></input>
-                <br/>
-                <span class="prompt">Target User:</span>
-                <input class="field" type="text" id="txt_userid" maxlength="80"></input>
-                <br/>
-                <br/>
-                <button type="button" class="btn btn-success" id="btn_follow">Follow Me</button>
-            </div>
- -->
             <div class="status">
                 <div class="field_name">Status:</div>
                 <div style="float:left" class="val" id="status">--</div>
+                <br/>
+                <div class="youre_it" id="youre_it">You're It</div>
             </div>
         </div>
     </body>

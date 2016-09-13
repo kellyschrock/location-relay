@@ -36,6 +36,7 @@ function postLocation(request, hostname, hostport) {
 
         res.on('end', function() {
             // console.log("done");
+            console.log(str);
         });
 
         res.on('error', function(err) {
@@ -66,7 +67,12 @@ function toRequestBody(line, group, user) {
     var body = {
         groupId: group,
         userId: user,
-        location: loc
+        location: loc,
+        options: {
+            look_at_me: true,
+            follow_type: "orbit",
+            cruise: "forward"
+        }
     };
 
     return body;

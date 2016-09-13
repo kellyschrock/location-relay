@@ -9,6 +9,7 @@ var _data = {
 
 var _locationPostedCallback = null;
 var _userDeletedCallback = null;
+var _isUserTargetedCallback = null;
 
 
 //
@@ -59,7 +60,7 @@ exports.listUsers = function(req, res) {
 //
 exports.setLocationPostedCallback = function(cb) {
     _locationPostedCallback = cb;
-}
+};
 
 //
 // Post a location. The post body specifies groupId, userId, and location. 
@@ -69,6 +70,12 @@ exports.postLocation = function(req, res) {
     var groupId = req.body.groupId;
     var userId = req.body.userId;
     var loc = req.body.location || req.body.loc;
+    var options = req.body.options;
+    var userIsIt = false;
+
+    if(_isUserTargetedCallback != null) {
+        userIsIt = _isUserTargetedCallback(groupId, userId);
+    }
 
     if(groupId && userId && loc) {
         var group = _data[groupId];
@@ -79,10 +86,13 @@ exports.postLocation = function(req, res) {
                 _data[groupId][userId].loc = loc;
 
                 if(_locationPostedCallback != null) {
-                    _locationPostedCallback(groupId, userId, loc);
+                    _locationPostedCallback(groupId, userId, loc, options);
                 }
 
-                res.json({status: "set location ok"});
+                res.json({
+                    status: "set location ok",
+                    it: userIsIt
+                });
             }
             else {
                 // Add the user/location
@@ -90,10 +100,13 @@ exports.postLocation = function(req, res) {
                 _data[groupId][userId].loc = loc;
 
                 if(_locationPostedCallback != null) {
-                    _locationPostedCallback(groupId, userId, loc);
+                    _locationPostedCallback(groupId, userId, loc, options);
                 }
 
-                res.json({status: "added user/location to " + groupId});
+                res.json({
+                    status: "added user/location to " + groupId,
+                    it: userIsIt
+                });
             }
         }
         else {
@@ -104,10 +117,13 @@ exports.postLocation = function(req, res) {
             };
 
             if(_locationPostedCallback != null) {
-                _locationPostedCallback(groupId, userId, loc);
+                _locationPostedCallback(groupId, userId, loc, options);
             }
 
-            res.json({status: "added group/user/location"});
+            res.json({
+                status: "added group/user/location",
+                it: userIsIt
+            });
         }
     }
     else {
@@ -161,6 +177,13 @@ exports.getUserLocation = function(req, res) {
 //
 exports.setUserDeletedCallback = function(cb) {
     _userDeletedCallback = cb;
+}
+
+//
+// Set a target location post callback.
+//
+exports.setIsUserTargetedCallback = function(cb) {
+    _isUserTargetedCallback = cb;
 }
 
 //

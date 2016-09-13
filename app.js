@@ -71,15 +71,24 @@ var userSubscribers = {};
 
 var wss = new WebSocketServer({server: server});
 
+// Called when the target POST handler wants to know if a user
+// is specifically being followed.
+locService.setIsUserTargetedCallback(function(groupId, userId) {
+    var id = _makeId(groupId, userId);
+    var client = userSubscribers[id];
+    return (client)? true: false;
+});
+
 // Called from locationService when a user posts a location.
-locService.setLocationPostedCallback(function(groupId, userId, location) {
+locService.setLocationPostedCallback(function(groupId, userId, location, options) {
     console.log("user location broadcast");
 
     var out = {
         type: "location", 
         groupId: groupId, 
         userId: userId, 
-        location: location
+        location: location,
+        options: options
     };
 
     var str = JSON.stringify(out);
@@ -92,6 +101,7 @@ locService.setLocationPostedCallback(function(groupId, userId, location) {
     wss.publishToGroupAndTarget(groupId, userId, str);
 });
 
+// Called when a user stops tracking on their device.
 locService.setUserDeletedCallback(function(groupId, userId) {
     console.log("user deleted from group " + groupId + ": " + userId);
 
@@ -111,7 +121,7 @@ locService.setUserDeletedCallback(function(groupId, userId) {
 function send(ws, data) {
     ws.send(data, function(error) {
         // if no error, send worked.
-        // otherwise, the error describes the problem.
+        // otherwise the error describes the problem.
     });
 }
 
