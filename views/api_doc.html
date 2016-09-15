@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open%20Sans">
+        <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style>
+        body {
+            font-family: 'Open Sans', serif;
+            font-size: 18px;
+            padding: 20px;
+            /*color: #dfdfdf;*/
+            /*background-color: #252525;*/
+        }
+
+        div.api {
+            border: 1px solid #ededed;
+            background-color: #fefefe;
+            border-radius: 4px;
+            margin: 12px;
+            padding: 12px;
+        }
+
+        div.api div.title {
+            font-weight: bold;
+            color: #232323;
+        }
+
+        div.api div.desc {
+            color: #565656;
+            margin-top: 10px;
+        }
+
+        div.api div.request {
+            margin: 10px;
+        }
+
+        div.api div.response {
+            margin: 10px;
+        }
+
+        div.api div.notes {
+            margin: 10px;
+        }
+
+        div.api div.request div.title {
+            font-weight: bold;
+        }
+
+        div.path {
+            margin-top: 10px;
+        }
+
+        div.method {
+            margin-top: 10px;
+        }
+
+        div.api code {
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        div.api pre {
+            background-color: #fafafa;
+            font-size: 18px;
+        }
+
+        </style>
+    </head>
+
+    <body>
+        <h1>Location Relay API</h1>
+        Hand-crafted API doc for the location relay service.
+
+        <div class="api">
+            <div class="title"><code>/follow/user</code></div>
+            <div class="desc">Post a location to the service.</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>POST</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                <pre>
+    {
+        groupId: "your group id",
+        userId: "your user id",
+        location: {
+            lat: latitude,
+            lng: longitude,
+            time: timestamp for this location (ms since 1/1/1970 00:00:00),
+            accuracy: accuracy circle in meters,
+            speed: optional in meters/second,
+            heading: optional in degrees
+        },
+        options: {
+            follow_type: one of "orbit", "free_look", "leash",
+            cruise: one of "forward", "pause", "reverse",
+            look_at_me: true or false
+        }
+    }
+                </pre>
+            </div>
+
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    {
+        status: "Message if all is well"
+        error: "Message if something went wrong",
+        it: true/false
+    }
+                </pre>
+            </div>
+
+            <div class="notes">
+                <div class="title">Notes</div>
+                Post location updates here to have them appear to subscribers to the group identified by <code>groupId</code>. When a
+                client follows the user identified by <code>userId</code>, the <code>it</code> field in the response is <code>true</code>;
+                otherwise it's not. The target can thus tell if they're being tracked specifically, vs just appearing as one of multiple
+                users moving about in a group.
+                <p>
+                When a target <i>is</i> being tracked specifically, the <code>options</code> in the POST body have the potential to affect
+                the manner in which they're followed (assuming the client receiving the notifications agrees). The <code>follow_type</code>
+                attribute specifies which follow mode to use (if applicable). The <code>cruise</code> value specifies whether the
+                copter should try to orbit the target (which actually only applies if <code>follow_type</code> is "free_look" or "orbit").
+                </p>
+                <p>
+                If all goes well, you'll get a <code>status</code> field in the response; its presence in the response body indicates
+                that things went well. If things go badly, there will instead be an <code>error</code> field in the response. And, it 
+                will say something about what went wrong.
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
+
