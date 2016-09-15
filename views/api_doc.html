@@ -134,8 +134,153 @@
                 that things went well. If things go badly, there will instead be an <code>error</code> field in the response. And, it 
                 will say something about what went wrong.
                 </p>
+                <b>NOTE:</b> When you are done being followed, send a <code>DELETE</code> to <code>/follow/user/:groupId/:userId</code>.
+                This will immediately tell any subscribed clients that you're not around, and they can stop tracking you.
             </div>
         </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/user/:groupId/:userId</code></div>
+            <div class="desc">Exit follow mode (delete a user from a group)</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>DELETE</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    {
+        status: "Message if all is well"
+        error: "Message if something went wrong"
+    }
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this when you're ready to stop being followed. The user is removed from the group, and 
+                all subscribers to the group are notified that you've exited.
+            </div>
+        </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/group/:groupId</code></div>
+            <div class="desc">Delete an entire group</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>DELETE</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    {
+        status: "Message if all is well"
+        error: "Message if something went wrong"
+    }
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this to delete an entire group. One thing to note: If you delete a group and there are 
+                still users in it posting locations, it will re-appear. So this is really only valid if you
+                know the users have all stopped reporting locations. Or if you want to remove stale users from
+                an active group, you could probably use it for that. 
+            </div>
+        </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/groups</code></div>
+            <div class="desc">List all groups</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>GET</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    [
+        test_group: {
+            test_user: {
+                loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+            }
+        },
+        some_other_group: {
+            some_user: {
+                loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+            }
+        }
+    ]
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this to see a listing of all groups and all users within groups.
+            </div>
+        </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/group/:groupId</code></div>
+            <div class="desc">Get users within a specified group</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>GET</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+        test_group: {
+            test_user: {
+                loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+            }
+        }
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this to see a listing of all groups and all users within groups.
+            </div>
+        </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/user/:groupId/:userId</code></div>
+            <div class="desc">Get a specific user's location within a group</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>GET</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+        loc: {lat: 123, lng: 234, altitude: 800, accuracy: 10, speed: 5, time: 1289320229}
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                TIP: Don't use this. Subscribe to a specific user instead.
+            </div>
+        </div>
+
+
+
     </body>
 </html>
 
