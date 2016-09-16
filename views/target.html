@@ -1,7 +1,7 @@
 <html>
     <head>
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open%20Sans">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open%20Sans">
         <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -67,6 +67,12 @@
             text-align: center;
         }
 
+        div.bordered {
+            border: 1px solid #afafaf;
+            border-radius: 3px;
+            padding: 10px;
+        }
+
         </style>
 
         <script>
@@ -111,6 +117,9 @@
             function success(position) {
                 mCurrentLocation = position.coords;
 
+                var msg = "" + new Date();
+                if()
+
                 statusMsg(new Date() + ": " + position.coords.latitude + "," + position.coords.longitude);
                 sendLocation(mCurrentLocation);
             }
@@ -122,8 +131,8 @@
 
             var options = {
                 enableHighAccuracy: true,
-                maximumAge: 3000,
-                timeout: 10000
+                maximumAge: 1000,
+                timeout: 1000
             };
 
             navigator.geolocation.getCurrentPosition(success, error, options);
@@ -177,10 +186,8 @@
                     type: "POST",
                     contentType: "application/json",
                     success: function(resp) {
-                        var data = $.parseJSON(resp);
-                        mUserIsIt = data.it;
+                        mUserIsIt = resp.it;
                         enableOptionsGroup(mUserIsIt);
-                        console.log("sendLocation() success: resp=" + JSON.stringify(resp));
                     }
                 }
             );
@@ -196,7 +203,7 @@
             statusMsg("Waiting for location");
             mIntervalId = setInterval(pingLocation, 3000);
             mFollowing = true;
-            $("#btn_follow").val("Stop Following");
+            $("#btn_follow").html("Stop Following");
         }
 
         function stopFollowing(setStatusMsg) {
@@ -212,7 +219,7 @@
                     success: function(resp) {
                         console.log("stopFollowing() success: resp=" + JSON.stringify(resp));
                         mFollowing = false;
-                        $("#btn_follow").val("Follow Me");
+                        $("#btn_follow").html("Follow Me");
                     }
                 }
             );
@@ -274,13 +281,17 @@
 
                 <button type="button" class="btn btn-default field" id="btn_follow">Follow Me</button>
 
-                <div class="form-group" id="follow_options">
+                <br/><br/>
+                <div class="form-group bordered" id="follow_options">
                     <label>Options:</label><br/>
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" id="chk_look_at_me">Look at Me
                         </label>
                     </div>
+
+                    <br/>
+                    <br/>
 
                     <label>Follow Type:</label>&nbsp;
                     <div class="radio-inline">
