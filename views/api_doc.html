@@ -119,8 +119,11 @@
 
             <div class="notes">
                 <div class="title">Notes</div>
-                Post location updates here to have them appear to subscribers to the group identified by <code>groupId</code>. When a
-                client follows the user identified by <code>userId</code>, the <code>it</code> field in the response is <code>true</code>;
+                Post location updates with this API to have them appear to subscribers to the group identified by <code>groupId</code>. 
+                <p>
+                    
+                </p>
+                When a client follows the user identified by <code>userId</code>, the <code>it</code> field in the response is <code>true</code>;
                 otherwise it's not. The target can thus tell if they're being tracked specifically, vs just appearing as one of multiple
                 users moving about in a group.
                 <p>
@@ -196,6 +199,64 @@
         </div>
 
         <div class="api">
+            <div class="title"><code>/follow/user/:groupId/:userId</code></div>
+            <div class="desc">Exit follow mode (delete a user from a group)</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>DELETE</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    {
+        status: "Message if all is well"
+        error: "Message if something went wrong"
+    }
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this when you're ready to stop being followed. The user is removed from the group, and 
+                all subscribers to the group are notified that you've exited.
+            </div>
+        </div>
+
+        <div class="api">
+            <div class="title"><code>/follow/group/:groupId</code></div>
+            <div class="desc">Delete an entire group</div>
+            <div class="method">
+                <div class="title">Method</div>
+                <b>DELETE</b>
+            </div>
+            <div class="request">
+                <div class="title">Request</div>
+                Nothing to speak of.
+            </div>
+            <div class="response">
+                <div class="title">Response</div>
+                <pre>
+    {
+        status: "Message if all is well"
+        error: "Message if something went wrong"
+    }
+                </pre>
+            </div>
+            <div class="notes">
+                <div class="title">Notes</div>
+                Call this to delete an entire group. One thing to note: If you delete a group and there are 
+                still users in it posting locations, it will re-appear. So this is really only valid if you
+                know the users have all stopped reporting locations. Or if you want to remove stale users from
+                an active group, you could probably use it for that. 
+            </div>
+        </div>
+
+        <div class="api">
+=======
+>>>>>>> apidoc/more
             <div class="title"><code>/follow/groups</code></div>
             <div class="desc">List all groups</div>
             <div class="method">
