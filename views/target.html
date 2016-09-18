@@ -117,13 +117,15 @@
             function success(position) {
                 mCurrentLocation = position.coords;
 
-                var msg = "" + new Date();
+                var msg = "" + position.coords.latitude + "," + position.coords.longitude;
+                msg += "<br/>Accuracy: " + position.coords.accuracy + "m";
+
                 if(position.coords.heading) {
-                    msg += " Heading: " + postiion.coords.heading;
+                    msg += "<br/>Heading: " + postiion.coords.heading;
                 }
 
                 if(position.coords.speed) {
-                    msg += " Speed: " + position.coords.speed + " m/s";
+                    msg += "<br/>Speed: " + position.coords.speed + " m/s";
                 }
 
                 statusMsg(msg);
