@@ -138,7 +138,7 @@
             var options = {
                 enableHighAccuracy: true,
                 maximumAge: 1000,
-                timeout: 8000
+                timeout: 10000
             };
 
             navigator.geolocation.getCurrentPosition(success, error, options);
@@ -207,7 +207,7 @@
             localStorage.setItem("follow.userId", mUserId);
 
             statusMsg("Waiting for location");
-            mIntervalId = setInterval(pingLocation, 3000);
+            mIntervalId = setInterval(pingLocation, 2000);
             mFollowing = true;
             $("#btn_follow").html("Stop Following");
         }
