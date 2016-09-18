@@ -117,7 +117,7 @@
             function success(position) {
                 mCurrentLocation = position.coords;
 
-                var msg = "";
+                var msg = "" + new Date();
                 if(position.coords.heading) {
                     msg += " Heading: " + postiion.coords.heading;
                 }
