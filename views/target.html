@@ -4,7 +4,7 @@
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open%20Sans">
         <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -117,10 +117,16 @@
             function success(position) {
                 mCurrentLocation = position.coords;
 
-                var msg = "" + new Date();
-                if()
+                var msg = "";
+                if(position.coords.heading) {
+                    msg += " Heading: " + postiion.coords.heading;
+                }
 
-                statusMsg(new Date() + ": " + position.coords.latitude + "," + position.coords.longitude);
+                if(position.coords.speed) {
+                    msg += " Speed: " + position.coords.speed + " m/s";
+                }
+
+                statusMsg(msg);
                 sendLocation(mCurrentLocation);
             }
 
