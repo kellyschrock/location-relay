@@ -38,7 +38,7 @@ app.get('/map', function(req, res) {res.sendfile('views/map.html'); });
 app.get('/solex-swag', function(req, res) {res.sendfile('views/solex-swag.html'); });
 app.get('/target', function(req, res) {res.sendfile('views/target.html'); });
 app.get('/apidoc', function(req, res) {res.sendfile('views/api_doc.html'); });
-app.get('/lsa-privacy', function(req, res) {res.sendfile('views/LookSeeAnimatorPrivacyPolicy.html'); });
+app.get('/app-privacy', function(req, res) {res.sendfile('views/global_privacy_policy.html'); });
 app.get('/ws', function(req, res) {res.sendfile('views/ws.html'); });
 
 // app.get('/', routes.index);
